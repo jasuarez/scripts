@@ -7,6 +7,8 @@ Several scripts I use on my daily work
   not the correct one.
 
 - `img2vdi`: convert a .img VM image into .vdi VirtualBox.
+
+- `micmute`: mutes/unmutes laptop microphone.
   
 - `redirect-mail.sh`: creates a tunnel through ssh and redirect transparently
   SMTP traffic through the tunnel.
