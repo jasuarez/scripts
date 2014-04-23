@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# Convert .img image in .vdi
+
+if [ "x$1" == "x" ]; then
+	echo "Usage: $0 <image.img> [image.vdi]"
+	return 1
+fi
+
+if [ "x$2" == "x" ]; then
+	B=$(basename "$1" .img)
+	O="$B.vdi"
+else
+	O="$2"
+fi
+
+qemu-img convert -O vdi "$1" "$O"
+
