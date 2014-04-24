@@ -1,0 +1,43 @@
+AUCDtect: CD records autheticity detector
+=========================================
+
+Version 0.8
+
+Copyright (c) 2004 Oleg Berngardt. All rights reserved.
+Copyright (c) 2004 Alexander Djourik. All rights reserved.
+
+* Features
+
+This program could determine authenticity of a musical CD
+records, stored in WAV format, using the character of the audio
+data it contains, and predicts its possible source - is it an
+original record or a reconstruction from a lossy encoded music
+file (for example, MP3).
+
+* Changes from version 0.7
+
+- Program should work little bit faster;
+- Supports disk conclusion mode over the set of tracks (-d key);
+- Decreased error level while processing strongly hardware-compressed;
+  studio records - now makes less errors;
+- Small algorithm improvements.
+
+* To Do
+
+- Improve the accuracy of detection.
+
+* Copying
+
+This program is free software; you may redistribute it freely as
+long as you do not charge for it.
+
+This program is distributed "AS IS" in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+* See also
+
+Please visit the auCDtect homepage at http://www.true-audio.com
+for the latest in news and downloads.
+

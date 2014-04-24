@@ -3,6 +3,8 @@ scripts
 
 Several scripts I use on my daily work
 
+- `auCDtect`: checks if a WAV comes from a MP3 file or from a CDAudio.
+
 - `backup-git`: mirrors a git repository into another repository.
 
 - `fix-gps-logmee.sh`: fix Nokia N9 GPS LogMee results, as the time format is
