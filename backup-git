@@ -1,0 +1,20 @@
+################################################################################
+#
+# backup-git
+#
+# Makes a backup of a git repository inside another git repository.
+# Usage: backupt-git <original repo> <destiny report>
+#
+# Juan A. Suarez Romero <jasuarez@igalia.com>  Tue, 10 Feb 2009 11:54:50 +0100
+#
+
+if [ "$#" != "2" ]; then
+   echo "Usage: $0 <origin> <destiny>"
+   exit 0
+fi
+
+export GNOME_KEYRING_SOCKET=$(find /tmp/keyring* -name socket)
+export GNOME_KEYRING_PID=$(pidof gnome-keyring-daemon)
+export SSH_AUTH_SOCK=$(find /tmp/keyring* -name ssh)
+
+git --git-dir="$1/.git" push --mirror "$2"

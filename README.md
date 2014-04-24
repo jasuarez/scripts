@@ -3,6 +3,8 @@ scripts
 
 Several scripts I use on my daily work
 
+- `backup-git`: mirrors a git repository into another repository.
+
 - `fix-gps-logmee.sh`: fix Nokia N9 GPS LogMee results, as the time format is
   not the correct one.
 
