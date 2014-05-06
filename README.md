@@ -16,7 +16,9 @@ Several scripts I use on my daily work
 - `img2vdi`: convert a .img VM image into .vdi VirtualBox.
 
 - `micmute`: mutes/unmutes laptop microphone.
-  
+
+- `ps_mem.py`: shows how much RAM is currently used *per program*.
+
 - `redirect-mail.sh`: creates a tunnel through ssh and redirect transparently
   SMTP traffic through the tunnel.
   
