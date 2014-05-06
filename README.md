@@ -23,4 +23,5 @@ Several scripts I use on my daily work
 - `start-xephyr.sh`: starts Xephyr server for use with Fremantle/Harmattan
   projects.
 
-  
+- `sub2srt`: converts subtitles from microdvd or subrip (`.sub` format) to
+  subviewer (`.srt` format).
