@@ -7,6 +7,8 @@ Several scripts I use on my daily work
 
 - `backup-git`: mirrors a git repository into another repository.
 
+- `backup-usb`: backups a LVM based disk on another disk.
+
 - `enable-powersave`: configures system settings for maximum power save,
   according to data provided by PowerTop.
 

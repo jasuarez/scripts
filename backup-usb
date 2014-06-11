@@ -1,0 +1,119 @@
+#!/bin/sh
+#
+# Backups all the non-snapshot LVM partitions from one USB disk to another USB
+# disk
+#
+# J.A. Fri, 22 Nov 2013 15:59:48 +0100
+#
+
+set -e
+
+# Origin USB
+ORIG_LABEL_PREFIX=IMG500_
+ORIG_MOUNTPATH=/media/backup_iomega500
+ORIG_NAME="Iomega 500Gb USB disk"
+ORIG_UUID=1e6f69e1-a77a-4a11-b970-8b6ed2156927
+ORIG_VGNAME=vgiomega500
+
+# Destiny USB
+DEST_LABEL_PREFIX=TSB1000_
+DEST_MOUNTPATH=/media/backup_toshiba1000
+DEST_NAME="Toshiba 1Tb USB disk"
+DEST_UUID=4a5a5203-6102-40b2-a65e-4c957b4efede
+DEST_VGNAME=vgtoshiba1000
+
+####################
+
+IFS=$'\n'
+
+# Detect the disks
+if [ ! -d /dev/${ORIG_VGNAME} ]; then
+  echo "${ORIG_NAME} not plugged or mounted"
+  exit 1
+fi
+
+if [ ! -b /dev/disk/by-uuid/${DEST_UUID} ]; then
+  echo "${DEST_NAME} not plugged"
+  exit 1
+fi
+
+# Mount destinity disk
+if [ ! -d /dev/${DEST_VGNAME} ]; then
+  echo "Mounting ${DEST_NAME}"
+  cryptsetup luksOpen --key-file /etc/luks-${DEST_UUID}.key /dev/disk/by-uuid/${DEST_UUID} luks-${DEST_UUID}
+  vgchange -a y ${DEST_VGNAME}
+  UMOUNT_LATER=1
+fi
+
+# Remove partitions that does not exist or changed in the original disk disk (needs to re-create)
+for l in $(lvs --noheadings --nosuffix --units=b -o lv_name,lv_size ${DEST_VGNAME} | grep "lvbck${ORIG_VGNAME}") ; do
+  LVNAME=$(echo "$l" | awk '{ print $1 }')
+  LVSIZE=$(echo "$l" | awk '{ print $2 }')
+  LVNAMEORIGIN=$(echo ${LVNAME} | sed "s/lvbck${ORIG_VGNAME}//g")
+  if [ ! -b /dev/${ORIG_VGNAME}/${LVNAMEORIGIN} ] ; then
+    echo "${LVNAME} deprecated; removing"
+    lvremove -f /dev/${DEST_VGNAME}/${LVNAME}
+  else
+    LVSIZEORIGIN=$(lvs --noheadings --nosuffix --units=b --separator=, -o lv_size /dev/${ORIG_VGNAME}/${LVNAMEORIGIN} | awk '{ print $1 }')
+    if [ "${LVSIZE}" != "${LVSIZEORIGIN}" ]; then
+      echo "${LVNAME} changed size; removing"
+      lvremove -f /dev/${DEST_VGNAME}/${LVNAME}
+    fi
+  fi
+done
+
+# Backup all non-snapshot ext4 logical volumes from original disk
+for l in $(lvs --noheadings --nosuffix --units=b -o origin,lv_name,lv_size ${ORIG_VGNAME} | awk 'NF == 2') ; do
+  LVNAME=$(echo "$l" | awk '{ print $1 }')
+  LVSIZE=$(echo "$l" | awk '{ print $2 }')
+  LVBCKNAME="lvbck${ORIG_VGNAME}${LVNAME}"
+  FSTYPE=$(blkid -s TYPE -o value /dev/${ORIG_VGNAME}/${LVNAME})
+
+  if [ "x$FSTYPE" != "xext4" ]; then
+    continue
+  fi
+  
+  # Create the partition if it not exists
+  DEST_LVPATH="/dev/${DEST_VGNAME}/${LVBCKNAME}"
+  if [ ! -b ${DEST_LVPATH} ]; then
+    echo "${LVBCKNAME} does not exists; creating"
+    NEWLABEL=$(e2label /dev/${ORIG_VGNAME}/${LVNAME} | sed "s/${ORIG_LABEL_PREFIX:-^}/${DEST_LABEL_PREFIX}/g")
+    lvcreate -n ${LVBCKNAME} -L${LVSIZE}b ${DEST_VGNAME}
+    mkfs.ext4 -L "${NEWLABEL}" ${DEST_LVPATH}
+  fi
+
+  # Check the original partition is in good shape
+  if ! grep -qs /dev/mapper/${ORIG_VGNAME}-${LVNAME} /proc/mounts ; then
+    fsck.ext4 -v /dev/${ORIG_VGNAME}/${LVNAME}
+  fi
+
+  # Do a snapshot of original partition
+  if [ -b /dev/${ORIG_VGNAME}/${LVBCKNAME} ]; then
+    umount /dev/${ORIG_VGNAME}/${LVBCKNAME}
+    lvremove -f /dev/${ORIG_VGNAME}/${LVBCKNAME}
+  fi
+  lvcreate -s -n ${LVBCKNAME} -p r -L1G /dev/${ORIG_VGNAME}/${LVNAME}
+
+  # Mount everything
+  mkdir -p ${ORIG_MOUNTPATH}
+  mkdir -p ${DEST_MOUNTPATH}
+  mount /dev/${ORIG_VGNAME}/${LVBCKNAME} ${ORIG_MOUNTPATH}
+  mount /dev/${DEST_VGNAME}/${LVBCKNAME} ${DEST_MOUNTPATH}
+
+  # Backup
+  rsync -avH --delete-before -P ${ORIG_MOUNTPATH}/ ${DEST_MOUNTPATH}/
+
+  # Free all
+  umount ${ORIG_MOUNTPATH}
+  umount ${DEST_MOUNTPATH}
+  rmdir ${ORIG_MOUNTPATH}
+  rmdir ${DEST_MOUNTPATH}
+  lvremove -f /dev/${ORIG_VGNAME}/${LVBCKNAME}
+  sync
+done
+
+if [ -n ${UMOUNT_LATER} ]; then
+  echo "Unplugging ${DEST_NAME}"
+  vgchange -a n ${DEST_VGNAME}
+  cryptsetup luksClose luks-${DEST_UUID}
+fi
