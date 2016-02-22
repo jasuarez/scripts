@@ -1,0 +1,10 @@
+#!/bin/sh
+
+INPUT="$1"
+FILENAME=$(basename "${INPUT}")
+OUTPUT="${FILENAME%.*}.mp4"
+SIZE=720x480
+
+ffmpeg -i ${INPUT} -filter_complex "[0:a]showwaves=s=${SIZE}:mode=line:rate=25,format=yuv420p[vid]" \
+  -map "[vid]" -map 0:a -codec:v libx264 -crf 18 -preset fast -codec:a aac -strict -2 \
+  -b:a 192k "${OUTPUT}"
