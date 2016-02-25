@@ -34,3 +34,4 @@ Several scripts I use on my daily work
 
 -  deqp-list-fail.sh : returns a list of dEQP tests that didn't pass.
 
+-  deqp-list-pass.sh : returns a list of dEQP tests that have passed.
