@@ -29,3 +29,8 @@ Several scripts I use on my daily work
 
 - `sub2srt`: converts subtitles from microdvd or subrip (`.sub` format) to
   subviewer (`.srt` format).
+
+-  deqp-list-terminated.sh : returns a list of dEQP tests that were terminated.
+
+-  deqp-list-fail.sh : returns a list of dEQP tests that didn't pass.
+
