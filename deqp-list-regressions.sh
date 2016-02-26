@@ -19,7 +19,7 @@ deqp-list-pass.sh $2 > $NEW_PASSES
 DIFF=$(diff -au $OLD_PASSES $NEW_PASSES | grep "^- " | cut -d* -f2)
 
 for CASE in $DIFF ; do
-    awk "/#beginTestCaseResult $CASE/ {show=1} show; /#endTestCaseResult/ {show=0}" $2 | \
+    awk "/#beginTestCaseResult $CASE/ { show=1 } show; /#endTestCaseResult/ { if (show==1) exit }" $2 | \
         grep StatusCode | \
         sed "s/.*StatusCode=\"\(.*\)\">\(.*\)<.*/$CASE  : \1 (\2)/g"
 done
