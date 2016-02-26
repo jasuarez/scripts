@@ -1,0 +1,31 @@
+#!/bin/bash
+# Mencoder Script
+# This version modified for use to transcode files to nokia n800/n810 use
+# Mark Waters - 20061007
+# Refactored by Juan A. Suarez Romero - 20080412
+#
+
+if [ "$1" = "" ]; then
+	echo "Usage: $0 <input> [output]"
+	exit 1
+fi
+ 
+# Audio and video bitrates
+ABR=96
+VBR=500
+SUFFIX=" - N810.avi"
+LOG=$(mktemp /tmp/n800_videoenc.XXX)
+SOURCE=$1
+TITLE=$(basename "$SOURCE" .avi)
+RESIZE="-vf scale=-11:240"
+AUDIO="-oac mp3lame -lameopts abr:br=$ABR -af volnorm=1:0.90"
+VIDEO="-ovc lavc -lavcopts"
+VIDOPTS1="vcodec=mpeg4:vbitrate=$VBR:vpass=1:turbo -ffourcc DIVX -idx"
+VIDOPTS2="vcodec=mpeg4:vbitrate=$VBR:vpass=2 -ffourcc DIVX -idx"
+OUTPUT=${2:-"$TITLE$SUFFIX"}
+SUBTITLE="$TITLE.srt"
+
+mencoder "$SOURCE" $RESIZE -sub "$SUBTITLE" -subfont-autoscale 3 $VIDEO $VIDOPTS1 -passlogfile "$LOG" -nosound -o /dev/null
+mencoder "$SOURCE" $RESIZE -sub "$SUBTITLE" -subfont-autoscale 3 $AUDIO $VIDEO $VIDOPTS2 -passlogfile "$LOG" -o "$OUTPUT" 
+rm -f $LOG
+
