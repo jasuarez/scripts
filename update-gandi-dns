@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# Update Gandi DNS with our public IP
+
+API=foo
+DOMAIN=acme.com
+
+gad -v -a $API -d $DOMAIN -r "@"
