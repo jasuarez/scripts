@@ -1,0 +1,34 @@
+#!/bin/bash
+# Mencoder Script
+# This version modified for use to transcode files to Nokia N9 use
+# Mark Waters - 20061007
+# Refactored by Juan A. Suarez Romero - 20120416
+#
+
+if [ "$1" = "" ]; then
+	echo "Usage: $0 <input> [output]"
+	exit 1
+fi
+ 
+# Audio and video bitrates
+ABR=160
+VBR=1500
+SUFFIX=" - N9.avi"
+LOG=$(mktemp /tmp/n800_videoenc.XXX)
+SOURCE=$1
+TITLE=$(basename "$SOURCE" .avi)
+RESIZE="-vf scale=-11:480"
+#AUDIO="-oac mp3lame -lameopts abr:br=$ABR -af volnorm,bs2b,hrtf"
+AUDIO="-oac mp3lame -lameopts abr:br=$ABR"
+VIDEO="-ovc lavc -lavcopts"
+VIDOPTS1="vcodec=libxvid:vbitrate=$VBR:vpass=1:turbo -ffourcc DIVX -idx"
+VIDOPTS2="vcodec=libxvid:vbitrate=$VBR:vpass=2 -ffourcc DIVX -idx"
+OUTPUT=${2:-"$TITLE$SUFFIX"}
+SUBTITLE="$TITLE.srt"
+
+mencoder "$SOURCE" $RESIZE -sub "$SUBTITLE" -subfont-autoscale 3 $VIDEO $VIDOPTS1 -passlogfile "$LOG" -nosound -o /dev/null
+mencoder "$SOURCE" $RESIZE -sub "$SUBTITLE" -subfont-autoscale 3 $AUDIO $VIDEO $VIDOPTS2 -passlogfile "$LOG" -o "$OUTPUT" 
+rm -f $LOG
+
+#ffmpeg -i "$OUTPUT.avi" -vf scale=-1:480 -vcodec libx264 -b ${VBR}k -acodec aac -ab $ABR -strict experimental -y "$OUTPUT.mp4"
+
