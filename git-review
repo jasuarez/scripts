@@ -3,7 +3,9 @@
 commits=$(git log --reverse --pretty=oneline --abbrev-commit $1 | cut -f 1 -d " ")
 for l in $commits; do
     git show $l --stat --color
-    echo "Reviewing the changes..."
+    echo
+    read -p "Review the changes [Y/n] " r
+    [ "$r" == "n" ] && clear && continue
     git difftool $l^ $l
     echo "Press ENTER to review next patch..."
     read
