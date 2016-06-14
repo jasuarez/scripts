@@ -1,0 +1,41 @@
+#!/bin/bash
+# Run apps inside docker
+
+app=$1
+cachefile=$HOME/.cache/appdocker
+olddays=7
+
+declare -A images=(
+    ["chrome"]="jess/chrome"
+    ["spotify"]="yammelvin/spotify-client"
+)
+
+declare -A params=(
+    ["chrome"]="--privileged -it --rm --net host --cpuset-cpus 0 --memory 512mb -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY -v $HOME/Downloads/Chrome:/root/Downloads --device /dev/snd --name=chrome_client"
+    ["spotify"]="--privileged  --name=spotify_client --rm=true --net=host --device /dev/snd -v /tmp/.X11-unix:/tmp/.X11-unix --env DISPLAY --volume $HOME/.spotify:/root --volume /dev/shm:/dev/shm --volume /tmp:/tmp --volume /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket -v /run/user/$UID/pulse/native:/root/pulseaudio/socket --env PULSE_SERVER=unix:/root/pulseaudio/socket"
+)
+
+function usage {
+    echo "Usage: $(basename $0) <app>"
+    echo " where <app> is:"
+    for a in ${!images[@]}; do
+        echo "   $a"
+    done
+    exit 0
+}
+
+function update_images {
+    if [ ! -f $cachefile ] || [ $(find $cachefile -mtime +$olddays) ]; then
+        for i in ${images[@]} ; do
+            docker pull $i
+        done
+        touch $cachefile
+    fi
+}
+
+if [ -z $app ] || [ -z ${images[$app]} ] ; then
+    usage
+fi
+
+update_images
+docker run ${params[$app]} ${images[$app]}
