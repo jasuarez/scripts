@@ -40,4 +40,5 @@ if [ -z $app ] || [ -z ${images[$app]} ] ; then
 fi
 
 update_images
+xhost local:root
 docker run ${params[$app]} ${images[$app]}
