@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# Make a diff between two commits.
+
+FIRST_COMMIT=$(mktemp /tmp/gitdiffcommit-first-XXX.patch)
+SECOND_COMMIT=$(mktemp /tmp/gitdiffcommit-second-XXX.patch)
+
+[ "$1" == "" ] || (git show $1 > $FIRST_COMMIT)
+[ "$2" == "" ] || (git show $2 > $SECOND_COMMIT)
+
+meld $FIRST_COMMIT $SECOND_COMMIT
+
+rm -f $FIRST_COMMIT $SECOND_COMMIT
+
+
