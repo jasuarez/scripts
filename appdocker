@@ -2,7 +2,7 @@
 # Run apps inside docker
 
 app=$1
-cachefile=$HOME/.cache/appdocker
+cachedir=$HOME/.cache/appdocker
 olddays=7
 
 declare -A images=(
@@ -26,11 +26,13 @@ function usage {
     exit 0
 }
 
-function update_images {
+function update_image {
+    local cachefile=$cachedir/$1.last
+    if [ ! -d $cachedir ]; then
+        mkdir -p $cachedir
+    fi
     if [ ! -f $cachefile ] || [ $(find $cachefile -mtime +$olddays) ]; then
-        for i in ${images[@]} ; do
-            docker pull $i
-        done
+        docker pull ${images[$1]}
         touch $cachefile
     fi
 }
@@ -39,6 +41,6 @@ if [ -z $app ] || [ -z ${images[$app]} ] ; then
     usage
 fi
 
-update_images
+update_image $app
 xhost local:root
 docker run ${params[$app]} ${images[$app]}
