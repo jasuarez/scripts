@@ -1,7 +1,6 @@
 #!/bin/bash
 # Run apps inside docker
 
-app=$1
 cachedir=$HOME/.cache/appdocker
 olddays=7
 
@@ -20,8 +19,10 @@ declare -A params=(
 )
 
 function usage {
-    echo "Usage: $(basename $0) <app>"
-    echo " where <app> is:"
+    echo "Usage: $(basename $0) [-n] <app>"
+    echo " where:"
+    echo "  -n : do not update image"
+    echo "  <app> : one of"
     for a in ${!images[@]}; do
         echo "   $a"
     done
@@ -39,10 +40,20 @@ function update_image {
     fi
 }
 
+if [ $# == 1 ] ; then
+    app=$1
+elif [ $# == 2 ] && [ "$1" == "-n" ] ; then
+    noupgrade=1
+    app=$2
+fi
+        
 if [ -z $app ] || [ -z ${images[$app]} ] ; then
     usage
 fi
 
-update_image $app
+if [ -z $noupgrade ] ; then
+    update_image $app
+fi
+
 xhost local:root
 docker run ${params[$app]} ${images[$app]}
