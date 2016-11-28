@@ -1,7 +1,8 @@
 #!/bin/bash
 #
 # Configure the proper factor scale so things are confortable with high DPI
-# (on) or turn it off (off), so everything is shown very small
+# (on) or turn it off (off), so everything is shown very small. default will
+# reset to fabric values.
 #
 
 if [ "$1" == "on" ] ; then
@@ -12,7 +13,10 @@ elif [ "$1" == "off" ] ; then
 	gsettings set org.gnome.desktop.interface text-scaling-factor 1.0
 	gsettings set org.gnome.desktop.interface scaling-factor 1
 	gsettings set org.gnome.settings-daemon.plugins.xsettings overrides "{'Gdk/WindowScalingFactor': <1>}"
-
+elif [ "$1" == "default" ] ; then
+    	gsettings set org.gnome.desktop.interface text-scaling-factor 1.0
+	gsettings set org.gnome.desktop.interface scaling-factor 0
+        gsettings set org.gnome.settings-daemon.plugins.xsettings overrides "{}"
 else
 	echo "Usage: $0 <on | off>"
 fi
