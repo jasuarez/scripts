@@ -1,12 +1,15 @@
 #!/bin/bash
 
-DEVICE=alsa_input.pci-0000_00_1b.0.analog-stereo
-
-muted=`pacmd dump | grep "set-source-mute ${DEVICE}" | cut -d " " -f 3`
-if [ ${muted} = "no" ]
-then
-    pactl set-source-mute ${DEVICE} yes
-else
-    pactl set-source-mute ${DEVICE} no
-fi
+devices=`pacmd dump | grep set-source-mute | grep input`
+for dev in $devices ; do
+    muted=`pacmd dump | grep "set-source-mute ${dev}" | cut -d " " -f 3`
+    case ${muted} in
+        "no")
+            pactl set-source-mute ${dev} yes
+            ;;
+        "yes")
+            pactl set-source-mute ${dev} no
+            ;;
+    esac
+done
 
