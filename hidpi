@@ -18,5 +18,5 @@ elif [ "$1" == "default" ] ; then
 	gsettings set org.gnome.desktop.interface scaling-factor 0
         gsettings set org.gnome.settings-daemon.plugins.xsettings overrides "{}"
 else
-	echo "Usage: $0 <on | off>"
+	echo "Usage: $0 <on | off | default>"
 fi
