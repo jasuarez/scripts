@@ -1,0 +1,41 @@
+#/bin/sh
+#
+# Returns a summary of dEQP results
+#
+
+if [ "$1" == "" ] ; then
+    echo "Usage: $0 [-d] <xml_results_file> [<xml_results_file_new>]" && exit 0
+fi
+
+if [ "$1" == "-d" ] && [ "$3" == "" ] ; then
+    echo "Usage: $0 [-d] <xml_results_file> [<xml_results_file_new>]" && exit 0
+fi
+
+
+if [ "$1" != "-d" ] ; then
+    cat $1 | \
+        tr -d '\n' | \
+        perl -pe  's/(<TestCaseResult)/\n\1/g' | \
+        perl -pe 's/^[^<].*//g' | \
+        perl -pe 's/.* CasePath="([^"]+?)" .* StatusCode="([^"]+?)".*/\1: \2/g'
+    echo
+
+    exit 0
+fi
+
+OLD_PASSES=$(mktemp /tmp/deqp-regressions-XXX.txt)
+NEW_PASSES=$(mktemp /tmp/deqp-regressions-XXX.txt)
+
+$0 $2 > $OLD_PASSES
+$0 $3 > $NEW_PASSES
+
+for r in $(cat $OLD_PASSES $NEW_PASSES | cut -f1 -d: | sort -u) ; do
+    echo -n "$r:"
+    echo -n "$((fgrep $r $OLD_PASSES  || echo $r: NotRun) | cut -f2 -d:)"
+    echo -n "$((fgrep $r $NEW_PASSES  || echo $r: NotRun) | cut -f2 -d:)"
+    echo
+done
+
+rm -f $OLD_PASSES
+rm -f $NEW_PASSES
+
