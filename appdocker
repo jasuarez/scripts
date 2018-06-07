@@ -21,13 +21,14 @@ declare -A params=(
 )
 
 function usage {
-    echo "Usage: $(basename $0) [-n] <app>"
+    echo "Usage: $(basename $0) [-n] <app> [<parameter>]"
     echo " where:"
     echo "  -n : do not update image"
     echo "  <app> : one of"
     for a in ${!images[@]}; do
         echo "   $a"
     done
+    echo "  <parameter> : optional parameter to pass"
     exit 0
 }
 
@@ -44,9 +45,22 @@ function update_image {
 
 if [ $# == 1 ] ; then
     app=$1
-elif [ $# == 2 ] && [ "$1" == "-n" ] ; then
+fi
+
+if [ $# == 2 ] ; then
+    if [ "$1" == "-n" ] ; then
+        noupgrade=1
+        app=$2
+    else
+        app=$1
+        parameter=$2
+    fi
+fi
+
+if [ $# == 3 ] && [ "$1" == "-n" ] ; then
     noupgrade=1
     app=$2
+    parameter=$3
 fi
         
 if [ -z $app ] || [ -z ${images[$app]} ] ; then
@@ -58,4 +72,4 @@ if [ -z $noupgrade ] ; then
 fi
 
 xhost local:root
-docker run ${params[$app]} ${images[$app]}
+docker run ${params[$app]} ${images[$app]} ${parameter}
