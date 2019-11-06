@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# check-current-network a b c ... will return 0 if current wifi is connected to
+# any SSID specified in parameters.
+
+ALL_DEVS="$(nmcli -g GENERAL.DEVICE device show)"
+
+for DEV in ${ALL_DEVS} ; do
+    # Only interested in wifi
+    TYPE="$(nmcli -t  -g GENERAL.TYPE  device show ${DEV})"
+    [[ "${TYPE}" == "wifi" ]] || continue
+
+    CURRENT="$(/usr/bin/nmcli -g GENERAL.CONNECTION d show ${DEV})"
+
+    # Check if there is a connection
+    [[ -n "$CURRENT" ]] || continue
+
+    for n in "$@"; do
+        [[ "$CURRENT" == "$n" ]] && exit 0
+    done
+done
+
+exit 1
