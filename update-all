@@ -1,0 +1,83 @@
+#!/bin/sh
+#
+# Updates system/user packages and stuff
+
+# Debian
+if [ -x /usr/bin/apt-get ]; then
+    sudo apt-get update
+    sudo apt-file update
+    sudo apt-get upgrade
+    sudo apt-get dist-upgrade
+    sudo apt-get autoremove
+    sudo apt-get clean
+fi
+
+# DNF
+if [ -x /usr/bin/dnf ]; then
+    echo "Updating DNF..."
+    sudo dnf update
+    sudo dnf clean all
+fi
+
+# Flatpak
+if [ -x /usr/bin/flatpak ]; then
+    echo "Updating flatpak..."
+    flatpak update --user
+    flatpak uninstall --user --unused
+    flatpak update
+    flatpak uninstall --unused
+fi
+
+# SChroot
+if [ -x /usr/bin/schroot ]; then
+    echo "Updating schroot..."
+    sudo schroot --all-source-chroots -- yum update
+    sudo schroot --all-source-chroots -- dnf update
+    sudo schroot --all-source-chroots -- dnf autoremove
+    sudo schroot --all-source-chroots -- yum clean all
+    sudo schroot --all-source-chroots -- dnf clean all
+    sudo schroot --all-source-chroots -- zypper ref
+    sudo schroot --all-source-chroots -- zypper up
+    sudo schroot --all-source-chroots -- zypper dup
+    sudo schroot --all-source-chroots -- zypper clean
+    sudo schroot --all-source-chroots -- apt-get update
+    sudo schroot --all-source-chroots -- apt-file update
+    sudo schroot --all-source-chroots -- apt-get upgrade
+    sudo schroot --all-source-chroots -- apt-get dist-upgrade
+    sudo schroot --all-source-chroots -- apt-get autoremove
+    sudo schroot --all-source-chroots -- apt-get clean all
+    sudo schroot --all-source-chroots -- emerge --sync
+    sudo schroot --all-source-chroots -- emerge --update --deep --newuse --with-bdeps y world
+    sudo schroot --all-source-chroots -- emerge --depclean
+    sudo schroot --all-source-chroots -- pfl
+    sudo schroot --all-source-chroots -- emerge --clean
+fi
+
+# PiP2 packages
+if [ -d ~/.local/lib/python2.7/ ]; then
+    echo "Updating PiP2 packages..."
+    for p in $(pip2 list --user --not-required -l -o) ; do
+        pip2 install --user --upgrade $p
+    done
+fi
+
+# PiP3 packages
+if [ -d ~/.local/lib/python3.7/ ]; then
+    echo "Updating PiP3 packages..."
+    for p in $(pip3 list --user --not-required -l -o) ; do
+        pip3 install --user --upgrade $p
+    done
+fi
+
+# Vim plugins
+if [ -x /usr/bin/vim ] && [ -d ~/.vim/.git ]; then
+    echo "Updating vim plugins..."
+    vim +PlugUpgrade +qall
+    vim +PlugInstall +qall
+fi
+
+# Emacs plugins
+if [ -x /usr/bin/emacs ] && [ -d ~/.emacs.d/.git ]; then
+    echo "Updating Emacs plugins..."
+    emacs -batch -u $USER -f package-utils-upgrade-all
+fi
