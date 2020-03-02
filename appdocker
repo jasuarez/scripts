@@ -7,6 +7,7 @@ olddays=7
 declare -A images=(
     ["acestream"]="munkie/acestreamplayer"
     ["chrome"]="jess/chrome"
+    ["decktape"]="astefanutti/decktape"
     ["skype"]="jess/skype"
     ["spotify"]="yammelvin/spotify-client"
     ["tor-browser"]="jess/tor-browser"
@@ -15,6 +16,7 @@ declare -A images=(
 declare -A params=(
     ["acestream"]="--privileged --rm=true --net=host -v /dev/snd:/dev/snd -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY -e uid=$(id -u) -e gid=$(id -g) --name acestream"
     ["chrome"]="--privileged -it --rm --net host --cpuset-cpus 0 --memory 512mb -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY -v $HOME/Downloads/Chrome:/home/chrome/Downloads --volume /tmp:/tmp --volume /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket -v /run/user/$UID/pulse/native:/home/chrome/pulseaudio/socket --env PULSE_SERVER=unix:/home/chrome/pulseaudio/socket --device /dev/snd --name=chrome_client"
+    ["decktape"]="--rm=true --net=host -v $PWD:/slides:Z"
     ["skype"]="--privileged --rm=true --net=host  -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY --name skype --volume /tmp:/tmp --volume /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket -v /run/user/$UID/pulse/native:/tmp/pulse/native --env PULSE_SERVER=unix:/tmp/pulse/native -v $HOME/.Skype:/home/skype/.Skype --group-add irc"
     ["spotify"]="--privileged --name=spotify_client --rm=true --net=host -v /tmp/.X11-unix:/tmp/.X11-unix --env DISPLAY --shm-size=256M --volume $HOME/.spotify:/root --volume /tmp:/tmp --volume /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket -v /run/user/$UID/pulse/native:/root/pulseaudio/socket --env PULSE_SERVER=unix:/root/pulseaudio/socket"
     ["tor-browser"]="--privileged --rm -v /dev/shm:/dev/shm -v /etc/machine-id:/etc/machine-id:ro -v /tmp/.X11-unix:/tmp/.X11-unix -v $HOME/Downloads/TorBrowser:/usr/local/bin/Browser/Downloads:Z -e DISPLAY=unix$DISPLAY --device /dev/snd --name tor-browser"
