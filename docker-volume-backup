@@ -1,0 +1,35 @@
+#!/usr/bin/bash
+#
+# Backups/restores a docker volume to/from a tarball
+
+function usage()
+{
+	echo "$0 export <volume> <tarball>"
+	echo "$0 import <tarball> <volume>"
+	exit 0
+}
+
+ACTION="$1"
+
+if [ "$1" == "export" ] ; then
+	VOLUME="$2"
+	FULLTARBALL=`realpath "$3"`
+	TARBALL=`basename "$FULLTARBALL"`
+	OUTDIR=`dirname "$FULLTARBALL"`
+	if [ -z $VOLUME ] || [ -z $TARBALL ] || [ -z $OUTDIR ] ; then
+		usage
+	fi
+	docker run --rm -v $VOLUME:/src:Z -v $OUTDIR:/dst:Z alpine tar cvf /dst/$TARBALL -C /src .
+elif [ "$1" == "import" ] ; then
+	FULLTARBALL=`realpath "$2"`
+	TARBALL=`basename "$FULLTARBALL"`
+	OUTDIR=`dirname "$FULLTARBALL"`
+	VOLUME="$3"
+	if [ -z $VOLUME ] || [ -z $TARBALL ] || [ -z $OUTDIR ] ; then
+		usage
+	fi
+	docker run --rm -v $OUTDIR:/src:Z -v $VOLUME:/dst:Z alpine tar xvf /src/$TARBALL -C /dst
+else
+	usage
+fi
+
