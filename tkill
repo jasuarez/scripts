@@ -1,0 +1,31 @@
+#!/bin/bash
+#
+# https://superuser.com/questions/1306458/how-to-kill-a-program-if-it-did-not-produce-any-output-in-a-given-timeout
+#
+# Kill application if no output in stdout after X seconds.
+#
+
+_terminate_children() {
+        trap "exit 143" SIGTERM && kill -- "-$$"
+}
+
+_usage() {
+	echo "$(basename $0) <timeout in seconds> <command> ..."
+	exit 0
+}
+
+[ -n "$1" ] || _usage
+
+trap _terminate_children SIGINT SIGTERM
+
+tout="$1"
+shift
+eval "$@" | tee >(while :; do
+   read -t "$tout"
+   case $? in
+      0) : ;;
+      1) break ;;
+      *) _terminate_children ;;
+   esac
+done)
+exit "${PIPESTATUS[0]}"
