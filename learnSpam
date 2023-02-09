@@ -1,6 +1,5 @@
 #!/bin/sh
 
-MAILSERVER=${MAILSERVER:-mail.acme.com}
 SSHSERVER=${SSHSERVER:-ssh.acme.com}
 
-ssh -t $SSHSERVER "fetchmail -a -v -n --folder Spam -m '/usr/bin/sa-learn --spam' --ssl $MAILSERVER"
+ssh -t $SSHSERVER "sa-learn --spam --progress --dir  /var/spool/maildirs/$USER/Maildir/.Spam/"
