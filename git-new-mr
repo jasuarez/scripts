@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# Gets a summary of the new MR. Designed for Freedesktop repositories.
+
+NC='\033[0m'
+BLUE='\033[0;34m'
+NEW_MRS=$(git log @{1}..@{0} | grep "Part-of:" | uniq  | cut -d: -f2- | tr -d "[ <>]")
+
+for M in $NEW_MRS ; do
+  TITLE=$(curl -s $M | grep "<title>" | sed "s/<title>\(.*\) · Merge requests.*/\1/")
+  echo -e "$TITLE $BLUE[$M]$NC"
+done
