@@ -4,12 +4,16 @@
 
 NC='\033[0m'
 BOLD='\033[1m'
-BLUE='\033[0;34m'
+
+LINK_URL='\e]8;;'
+LINK_TITLE='\e\\'
+LINK_END='\e]8;;\e\\'
+
 NEW_MRS=$(git log @{1}..@{0} | grep "Part-of:" | uniq  | cut -d: -f2- | tr -d "[ <>]")
 
 for M in $NEW_MRS ; do
   TITLE=$(curl -s $M | grep "<title>" | sed "s/<title>\(.*\) · Merge requests.*/\1/" | sed 's/\&amp;/\&/g; s/\&lt;/</g; s/\&gt;/>/g; s/\&quot;/"/g; s/\&#39;/'"'"'/g')
   POSTTITLE=$(echo -n $TITLE | cut -d: -f2-)
   PRETITLE=${TITLE%$POSTTITLE}
-  printf "$BOLD$PRETITLE$NC$POSTTITLE $BLUE[$M]$NC\n"
+  printf "$LINK_URL$M$LINK_TITLE$BOLD$PRETITLE$NC$POSTTITLE$LINK_END\n"
 done
