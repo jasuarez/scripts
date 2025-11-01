@@ -3,3 +3,4 @@
 SSHSERVER=${SSHSERVER:-ssh.acme.com}
 
 ssh -t $SSHSERVER "sa-learn --spam --progress --dir  /var/spool/maildirs/$USER/Maildir/.Spam/"
+ssh -t $SSHSERVER "sa-learn --ham --progress --dir  /var/spool/maildirs/$USER/Maildir/.Spam-False/"
